@@ -25,9 +25,14 @@ import javax.sql.DataSource;
 @RequestMapping("/test")
 @Slf4j
 public class DemoApplication {
-
+	@RequestMapping("/test")
+	public String test(){
+		log.info("tee");
+		return "1234";
+	}
 	public static void main(String[] args) {
 		SpringApplication.run(DemoApplication.class, args);
+		log.info("启动了...");
 	}
 	@Bean
 	@ConfigurationProperties(prefix = "spring.datasource")
@@ -45,9 +50,5 @@ public class DemoApplication {
 
 	@Autowired
 	private MessageDetailService service;
-	@RequestMapping("/test")
-	public String test(){
-		log.info("tee");
-		return JSON.toJSONString(service.queryList(null));
-	}
+
 }
