@@ -1,8 +1,7 @@
 package com.ff;
 
-import com.alibaba.fastjson.JSON;
 import com.ff.service.message.MessageDetailService;
-import com.zaxxer.hikari.HikariConfig;
+import com.ff.util.redis.LettuceUtil;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -25,11 +24,7 @@ import javax.sql.DataSource;
 @RequestMapping("/test")
 @Slf4j
 public class DemoApplication {
-	@RequestMapping("/test")
-	public String test(){
-		log.info("tee");
-		return "1234";
-	}
+
 	public static void main(String[] args) {
 		SpringApplication.run(DemoApplication.class, args);
 		log.info("启动了...");
@@ -47,8 +42,20 @@ public class DemoApplication {
 		sqlSessionFactoryBean.setMapperLocations(resolver.getResources("classpath:mapper/*/*Mapper.xml"));
 		return sqlSessionFactoryBean.getObject();
 	}
-
 	@Autowired
 	private MessageDetailService service;
+
+
+	@Autowired
+	private LettuceUtil lettuceUtil;
+	@RequestMapping("/test")
+	public String test(){
+		log.info("tee");
+		for(int i=0;i<3;i++){
+			lettuceUtil.set("00_Alettuce" + i,"2323"+i);
+			log.info(lettuceUtil.get("00_Alettuce" + i));
+		}
+		return "3223";
+	}
 
 }
