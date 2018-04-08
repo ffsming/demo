@@ -1,5 +1,6 @@
 package com.ff;
 
+import com.alibaba.fastjson.JSON;
 import com.ff.service.message.MessageDetailService;
 import com.ff.timer.CronJob;
 import com.ff.timer.SampleJob;
@@ -17,6 +18,8 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -24,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.sql.DataSource;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @SpringBootApplication
@@ -32,6 +37,7 @@ import javax.sql.DataSource;
 @RequestMapping("/test")
 @Slf4j
 @ServletComponentScan
+@EnableCaching
 public class Demo1Application  extends SpringBootServletInitializer {
 
 	@Override
@@ -90,14 +96,17 @@ public class Demo1Application  extends SpringBootServletInitializer {
 
 	@Autowired
 	private LettuceUtil lettuceUtil;
+	@Cacheable("11111")
 	@RequestMapping("/test")
 	public String test(){
 		log.info("tee");
-		for(int i=0;i<3;i++){
-			lettuceUtil.set("00_Alettuce" + i,"2323"+i);
-			log.info(lettuceUtil.get("00_Alettuce" + i));
-		}
-		return "3223";
+		List list = new ArrayList<>();
+		list.add(1);
+		list.add(2);
+		list.add(3);
+		list.add(4);
+		list.add(5);
+		return JSON.toJSONString(list);
 	}
 
 }
