@@ -1,16 +1,12 @@
 package com.ff;
 
-import com.alibaba.fastjson.JSON;
-import com.ff.util.cache.RCache;
+import com.ff.util.cache.RCacheEvict;
+import com.ff.util.cache.RCacheable;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,7 +15,6 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
-@EnableCaching
 @SpringBootApplication
 @RestController
 @RequestMapping("/test")
@@ -35,14 +30,20 @@ public class CacheApplication{
 		return new HikariDataSource();
 	}
 
-	@RCache(name = "332")
-	@RequestMapping("/cache")
-	public String test(){
+	@RequestMapping("/cacheable")
+	@RCacheable(name = "cache",expireTime = 600)
+	public List<Object> test(){
+	    log.info("---------------------");
 		List<Object> list = new ArrayList<>();
 		for (int i = 0; i < 5; i++) {
 			list.add(i);
 		}
-		return JSON.toJSONString(list);
+		return list;
+	}
+	@RequestMapping("/cacheevict")
+	@RCacheEvict(name = "cache")
+	public void test1(){
+	    log.info("---------------------");
 	}
 
 }

@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Inherited
 @Documented
-public @interface RCache {
+public @interface RCacheable {
     //唯一标识 建议 类名+方法名，默认为""
     String name() default "";
     //过期时间，单位：秒

@@ -1,17 +1,17 @@
 package com.ff.util.cache;
 
 
+import com.alibaba.fastjson.JSON;
 import com.ff.util.redis.JedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
-
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * @author
@@ -26,31 +26,24 @@ public class Rediscache {
     private static final String OK = "OK";
 
     @Around("@annotation(cache)")
-    public void requestcacheBefore(ProceedingJoinPoint proceedingJoinPoint , RCache cache) throws NoSuchMethodException {
-
-        //获取方法返回值类型
-        Object[] args = proceedingJoinPoint.getArgs();
-        Class<?>[] paramsCls = new Class<?>[args.length];
-        for (int i = 0; i < args.length; ++i) {
-            paramsCls[i] = args[i].getClass();
+    public Object requestCacheable(ProceedingJoinPoint proceedingJoinPoint , RCacheable cache) throws Throwable {
+        String key = "cache_"+cache.name();
+        Signature signature =  proceedingJoinPoint.getSignature();
+        Class returnType = ((MethodSignature) signature).getReturnType();
+        //从缓存取值
+        Object op =  JSON.parseObject(jedisUtil.jedisGet(key),returnType);
+        if(op != null){
+            log.info("redis取值==" + op);
+            return op;
         }
-        //获取方法
-        Method method = proceedingJoinPoint.getTarget().getClass().getMethod(proceedingJoinPoint.getSignature().getName(), paramsCls);
-        //获取返回值类型
-        Type t = method.getAnnotatedReturnType().getType();
-        System.out.println(t.getTypeName());
-
-
-
-        String flag = jedisUtil.jedisSet("cache_"+cache.name() , "1" , "NX" , "EX" , cache.expireTime());
-        log.info(cache.name() +"  redis开关状态--"+flag);
-        if(StringUtils.isEmpty(flag)){
-            return;
-        }
+        //缓存没有则执行方法并更新缓存
         try {
-            if(OK.equalsIgnoreCase(flag)){
-                Object object = proceedingJoinPoint.proceed();
-                log.info(object.toString());
+            Object object = proceedingJoinPoint.proceed();
+            log.info(object.toString());
+            String flag = jedisUtil.jedisSet(key , JSON.toJSONString(object) , "NX" , "EX" , cache.expireTime());
+            if(flag == null || flag.length() == 0){
+                jedisUtil.jedisDel(key);
+                jedisUtil.jedisSet(key , JSON.toJSONString(object) , "NX" , "EX" , cache.expireTime());
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -59,5 +52,21 @@ public class Rediscache {
             throwable.printStackTrace();
             log.error(cache.name() + " redis锁异常了");
         }
+        return null;
+    }
+    @Around("@annotation(evict)")
+    public Object requestCacheEvict(ProceedingJoinPoint proceedingJoinPoint , RCacheEvict evict) throws Throwable {
+        String key = "cache_"+evict.name();
+        try {
+            proceedingJoinPoint.proceed();
+            jedisUtil.jedisDel(key);
+        }catch (Exception e){
+            e.printStackTrace();
+            log.error(evict.name() + " redis锁异常了");
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+            log.error(evict.name() + " redis锁异常了");
+        }
+        return null;
     }
 }
