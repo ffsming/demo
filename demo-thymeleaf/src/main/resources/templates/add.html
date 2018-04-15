@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta charset="UTF-8"/>
+    <title>编辑</title>
+</head>
+<body>
+    <form th:action="@{/save}"  method="post">
+        <table>
+            <td>姓名: <input th:type="text" name="name" id="name" th:value="${user.name}"/></td>
+            <td>年龄: <input th:type="text" name="age" id="age" th:value="${user.age}"/></td>
+        </table>
+            <input type="submit" th:value="submit"/>
+    </form>
+<script th:inline="javascript">
+    function save() {
+        var name = document.getElementById("name").value;
+        var age = document.getElementById("age").value;
+        alert(name);
+        alert(age);
+    }
+</script>
+</body>
+</html>
