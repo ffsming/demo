@@ -7,16 +7,14 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 @Slf4j
 public class TestController {
 
-    @RequestMapping("/index")
-    public String test(Model model){
+    @RequestMapping("/list")
+    public String list(Model model){
         /**
          * service.queryList();
          */
@@ -29,7 +27,7 @@ public class TestController {
         user = new User(2,"lisi",18);
         list.add(user);
         model.addAttribute("user",list);
-        return "index";
+        return "list";
     }
     @RequestMapping("/toAdd")
     public String toAdd(Model model,Integer id){
@@ -55,7 +53,7 @@ public class TestController {
         /**
          * service.save(user);
          */
-        return "redirect:index";
+        return "redirect:list";
     }
     @RequestMapping("/delete")
     public String toAdd(Integer id){
@@ -63,7 +61,7 @@ public class TestController {
         /**
          * service.delete(id);
          */
-        return "redirect:index";
+        return "redirect:list";
     }
 
 }
