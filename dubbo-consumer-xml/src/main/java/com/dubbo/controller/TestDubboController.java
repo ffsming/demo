@@ -1,7 +1,7 @@
 package com.dubbo.controller;
 
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.dubbo.service.ProviderService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/test")
 public class TestDubboController {
 
-    @Reference(version = "1.0.0")
+    @Autowired
     private ProviderService providerService;
 
     @RequestMapping("/dubbo")

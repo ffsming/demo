@@ -1,7 +1,6 @@
 package com.dubbo.service;
 
 import com.alibaba.dubbo.config.annotation.Service;
-import com.duubo.service.ProviderService;
 
 @Service(
         version = "1.0.0",
